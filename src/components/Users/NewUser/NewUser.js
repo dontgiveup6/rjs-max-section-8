@@ -1,24 +1,22 @@
-import { useState } from "react";
+import React, { useState, useRef } from "react";
+// import Wrapper from "../../Helpers/Wrapper";
 import Button from "../../UI/Button/Button";
 import Card from "../../UI/Card/Card";
 import ErrorModal from "../../UI/ErrorModal/ErrorModal";
 import styles from "./NewUser.module.css";
 
 const NewUser = (props) => {
-  const [userInput, setUserInput] = useState({
-    username: "",
-    age: "",
-  });
+  const nameInputRef = useRef();
+  const ageInputRef = useRef();
 
   const [error, setError] = useState();
 
   const formSubmitHandler = (e) => {
     e.preventDefault();
+    const enteredName = nameInputRef.current.value;
+    const enteredAge = ageInputRef.current.value;
 
-    if (
-      userInput.username.trim().length === 0 ||
-      userInput.age.trim().length === 0
-    ) {
+    if (enteredName.trim().length === 0 || enteredAge.trim().length === 0) {
       setError({
         title: "Invalid input",
         message: "Please enter a valid name and age.",
@@ -26,7 +24,7 @@ const NewUser = (props) => {
       return;
     }
 
-    if (+userInput.age < 1) {
+    if (+enteredAge < 1) {
       setError({
         title: "Invalid age",
         message: "Please enter a valid age (> 0)",
@@ -35,17 +33,10 @@ const NewUser = (props) => {
       return;
     }
 
+    const userInput = { username: enteredName, age: enteredAge };
     props.onFormSubmit(userInput);
-    setUserInput({ username: "", age: "" });
-  };
-
-  const userInputChangeHandler = (type, event) => {
-    setUserInput((prevUserInputState) => {
-      return {
-        ...prevUserInputState,
-        [type]: event.target.value,
-      };
-    });
+    nameInputRef.current.value = "";
+    ageInputRef.current.value = "";
   };
 
   const closeModal = () => {
@@ -53,7 +44,7 @@ const NewUser = (props) => {
   };
 
   return (
-    <>
+    <React.Fragment>
       {error && (
         <ErrorModal
           onCloseModal={closeModal}
@@ -69,9 +60,8 @@ const NewUser = (props) => {
               <input
                 id="username"
                 placeholder="Enter username"
-                value={userInput.username}
+                ref={nameInputRef}
                 type="text"
-                onChange={userInputChangeHandler.bind(this, "username")}
               />
             </div>
             <div className={`${styles["form-control"]}`}>
@@ -79,9 +69,8 @@ const NewUser = (props) => {
               <input
                 id="age"
                 placeholder="Enter age"
-                value={userInput.age}
+                ref={ageInputRef}
                 type="number"
-                onChange={userInputChangeHandler.bind(this, "age")}
               />
             </div>
           </div>
@@ -90,7 +79,7 @@ const NewUser = (props) => {
           </div>
         </form>
       </Card>
-    </>
+    </React.Fragment>
   );
 };
 
